@@ -11,6 +11,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float runSpeed = 17f;
     [SerializeField] private float climbSpeed = 5f;
     private float speed;
+    private bool sprint;
 
     [SerializeField] private Animator modelAnimator;
     [SerializeField] private GameObject model;
@@ -99,11 +100,39 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
+    public void StartSprint()
+    {
+        if(charControl.isGrounded && !glide)
+        {
+            speed = runSpeed;
+            modelAnimator.SetBool("run", true);
+        }
+    }
+
+    public void Climb(int direction)
+    {
+        if (!canClimb)
+            return;
+
+        movementVec.y = climbSpeed * direction;
+        isClimbing = true;
+        modelAnimator.speed = Mathf.Abs(direction);
+    }
+
+    public void Idle()
+    {
+        if (!canClimb || !isClimbing)
+            return;
+
+        movementVec.y = 0;
+        modelAnimator.speed = 0;
+    }
+
     void Climb()
     {
         if (canClimb)
         {
-            if (Input.GetKey(upCode))
+           /* if (Input.GetKey(upCode))
             {
                 movementVec.y = climbSpeed;
                 isClimbing = true;
@@ -119,7 +148,7 @@ public class PlayerMovement : MonoBehaviour
             {
                 movementVec.y = 0;
                 modelAnimator.speed = 0;
-            }
+            }*/
         }
         else
         {
@@ -145,14 +174,14 @@ public class PlayerMovement : MonoBehaviour
             movementVec.y = 0;
     }
 
-    void Jump()
+    public void Jump()
     {
         if (charControl.isGrounded || isClimbing)
         {
             StopJump();
         }
 
-        if (Input.GetKeyDown(jumpCode) && charControl.isGrounded)
+        if (/*Input.GetKeyDown(jumpCode) && */charControl.isGrounded)
         {
             if (jumpCoroutine == null)
             {
@@ -215,6 +244,16 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
+    public void GoLeft()
+    {
+        movementVec += Vector2.right * -speed;
+    }   
+    
+    public void GoRight()
+    {
+        movementVec += Vector2.right * speed;
+    }
+
     void MoveXZ ()
     {        
         if (Input.GetKey(rightCode))
@@ -222,14 +261,17 @@ public class PlayerMovement : MonoBehaviour
         if (Input.GetKey(leftCode))
             movementVec += Vector2.right * -speed;
     }
+
     void Sprint()
     {
-        if (Input.GetKey(sprintCode) && charControl.isGrounded && !glide)
+    //    if (Input.GetKey(sprintCode) && charControl.isGrounded && !glide)
+        //if (sprint)
         {
-            speed = runSpeed;
-            modelAnimator.SetBool("run", true);
+            //speed = runSpeed;
+            //modelAnimator.SetBool("run", true);
         }
-        else
+
+        if (!charControl.isGrounded || glide)
         {
             speed = walkSpeed;
             modelAnimator.SetBool("run", false);
